@@ -1,0 +1,98 @@
+service: the-best-sushi-app
+package:
+  individually: true
+  excludeDevDependencies: true
+
+frameworkVersion: ">=1.1.0 <2.0.0"
+
+plugins:
+  - serverless-webpack
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  stage: ${opt:stage, 'dev'}
+  region: us-east-1
+  environment:
+      ORDER_TABLE: order-theBestSushiApp-${opt:stage, self:provider.stage}
+
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:DescribeTable
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+        - dynamodb:GetRecords
+        - dynamodb:GetShardIterator
+        - dynamodb:DescribeStream
+        - dynamodb:ListStreams
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.ORDER_TABLE}"
+
+functions:
+  addOrder:
+    handler: handlers/add.addOrder
+    events:
+      - http:
+          path: order/add
+          method: post
+          cors: true
+
+  # setAsDelivered:
+  #   handler: handlers/delivered.setAsDelivered
+  #   events:
+  #     - http:
+  #         path: delivery/order/{id}/delivered
+  #         method: put
+  #         cors: true
+
+  # setAsReceived:
+  #   handler: handlers/received.setAsReceived
+  #   events:
+  #     - http:
+  #         path: client/order/{id}/received
+  #         method: put
+  #         cors: true
+
+  # rateService:
+  #   handler: handlers/rate.rateService
+  #   events:
+  #     - http:
+  #         path: client/order/{id}/rating
+  #         method: put
+  #         cors: true
+
+  # notifyOwner:
+  #   handler: handlers/notify.notifyOwner
+  #   events:
+  #     - stream:
+  #         type: dynamodb
+  #         arn:
+  #           Fn::GetAtt:
+  #             - orderTable
+  #             - StreamArn
+  #         batchSize: 1
+
+resources:
+  Resources:
+    orderTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        TableName: ${self:provider.environment.ORDER_TABLE}
+        AttributeDefinitions:
+          -
+            AttributeName: id
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        StreamSpecification:
+          StreamViewType: NEW_IMAGE
