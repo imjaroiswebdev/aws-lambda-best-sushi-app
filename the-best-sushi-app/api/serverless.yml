@@ -41,21 +41,21 @@ functions:
           method: post
           cors: true
 
-  # setAsDelivered:
-  #   handler: handlers/delivered.setAsDelivered
-  #   events:
-  #     - http:
-  #         path: delivery/order/{id}/delivered
-  #         method: put
-  #         cors: true
+  setAsDelivered:
+    handler: handlers/delivered.setAsDelivered
+    events:
+      - http:
+          path: delivery/order/{id}/delivered
+          method: get
+          cors: true
 
-  # setAsReceived:
-  #   handler: handlers/received.setAsReceived
-  #   events:
-  #     - http:
-  #         path: client/order/{id}/received
-  #         method: put
-  #         cors: true
+  setAsReceived:
+    handler: handlers/received.setAsReceived
+    events:
+      - http:
+          path: client/order/{id}/received
+          method: get
+          cors: true
 
   # rateService:
   #   handler: handlers/rate.rateService
