@@ -15,6 +15,7 @@ provider:
   region: us-east-1
   environment:
       ORDER_TABLE: order-theBestSushiApp-${opt:stage, self:provider.stage}
+      TOKEN_TABLE: token-theBestSushiApp-${opt:stage, self:provider.stage}
 
   iamRoleStatements:
     - Effect: Allow
@@ -30,7 +31,9 @@ provider:
         - dynamodb:GetShardIterator
         - dynamodb:DescribeStream
         - dynamodb:ListStreams
-      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.ORDER_TABLE}"
+      Resource:
+        - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.ORDER_TABLE}"
+        - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.TOKEN_TABLE}"
 
 functions:
   addOrder:
@@ -65,16 +68,28 @@ functions:
   #         method: put
   #         cors: true
 
-  # notifyOwner:
-  #   handler: handlers/notify.notifyOwner
-  #   events:
-  #     - stream:
-  #         type: dynamodb
-  #         arn:
-  #           Fn::GetAtt:
-  #             - orderTable
-  #             - StreamArn
-  #         batchSize: 1
+  notifyOwner:
+    handler: handlers/notify.notifyOwner
+    events:
+      - http:
+          path: backoffice/notifications
+          method: get
+          cors: true
+      - stream:
+          type: dynamodb
+          arn:
+            Fn::GetAtt:
+              - orderTable
+              - StreamArn
+          batchSize: 1
+
+  addToken:
+    handler: handlers/token.addToken
+    events:
+      - http:
+          path: subscriber/{token}
+          method: get
+          cors: true
 
 resources:
   Resources:
@@ -95,4 +110,21 @@ resources:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
         StreamSpecification:
-          StreamViewType: NEW_IMAGE
+          StreamViewType: NEW_AND_OLD_IMAGES
+
+    tokenTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        TableName: ${self:provider.environment.TOKEN_TABLE}
+        AttributeDefinitions:
+          -
+            AttributeName: subscriber
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: subscriber
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1

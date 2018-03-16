@@ -1,0 +1,16 @@
+@font-face {
+  font-family: 'Tastysushi Line';
+  font-style: normal;
+  font-weight: normal;
+  src: url("./assets/Tastysushi Line.ttf") format("TrueType"), local("Tastysushi Line");
+}
+
+.tastysushiFont {
+  font-family: 'Tastysushi Line', sans-serif;
+  font-style: normal;
+  font-weight: normal;
+}
+
+body {
+  background: url('./assets/bamboo-bg.jpg')
+}
