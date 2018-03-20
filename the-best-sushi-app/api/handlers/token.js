@@ -1,4 +1,4 @@
-const { Order } = require('../models/order')
+const { Token } = require('../models/subscriberToken')
 const pe = require('parse-error')
 const uuid = require('uuid/v1')
 
@@ -11,28 +11,31 @@ module.exports.addToken = (event, context, callback) => {
     callback(errResponse.stack, null)
   }
 
-  const { body } = event
+  const { pathParameters: { token } } = event
 
-  createOrder(body)
-    .then(newOrder => {
+  saveToken(token)
+    .then(tokenStored => {
       const response = {
         statusCode: 200,
         headers: {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*'
         },
-        body: JSON.stringify(newOrder)
+        body: JSON.stringify(tokenStored)
       }
 
-      console.log(` => Order [${newOrder.id}] created`)
+      console.log(` => Token [${tokenStored.token}] stored`)
       callback(null, response)
     })
     .catch(handleErr)
 }
 
-const createOrder = data => {
-  let orderData = JSON.parse(data)
-  orderData.id = uuid()
-
-  return Order.create(orderData)
-}
+const saveToken = token =>
+  Token.get({ subscriber: 'sushi-owner' })
+  .then(tokenData => {
+    if (!tokenData) {
+      return Token.create({ subscriber: 'sushi-owner', token })
+    } else {
+      return Token.update({ subscriber: 'sushi-owner' }, { token })
+    }
+  })

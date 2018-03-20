@@ -21,8 +21,17 @@ export class SushiOwner extends Component {
                   <small className="text-muted">There's not new notifications</small>
                 </h1>
               : notification.map((notif, index) =>
-                  <Alert key={index} color={notif.type === "delivered" ? "primary" : "success"}>
-                    {notif.msg}
+                  <Alert
+                    key={index}
+                    color={
+                      notif.type === 'newOrder'
+                        ? 'warning'
+                        : notif.type === "delivered"
+                          ? "primary"
+                          : "success"
+                    }
+                  >
+                    {notif.message}
                   </Alert>
                 )
           }

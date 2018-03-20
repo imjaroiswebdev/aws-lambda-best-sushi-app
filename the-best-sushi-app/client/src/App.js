@@ -14,11 +14,11 @@ class App extends Component {
   componentDidMount() {
     messaging.onMessage(payload =>
       this.setState(({ notification }) => {
-        const { type, msg } = JSON.parse(payload.notification.body)
+        const { type, message } = JSON.parse(payload.notification.body)
 
         notification.push({
           type,
-          msg
+          message
         })
 
         return { notification }

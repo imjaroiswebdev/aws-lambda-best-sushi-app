@@ -1,5 +1,6 @@
 const path = require('path')
 const slsw = require('serverless-webpack')
+const Dotenv = require('dotenv-webpack')
 
 module.exports = {
   target: 'node',
@@ -19,5 +20,8 @@ module.exports = {
       }
     ]
   },
-  externals: ['aws-sdk']
+  externals: ['aws-sdk'],
+  plugins: [
+    new Dotenv()
+  ]
 }

@@ -1,7 +1,9 @@
 const { Order } = require('../models/order')
+const { Token } = require('../models/subscriberToken')
 const pe = require('parse-error')
 const uuid = require('uuid/v1')
 const cuid = require('cuid')
+const fetch = require('axios')
 
 module.exports.notifyOwner = (event, context, callback) => {
   // *** Error handling support in promises
@@ -17,26 +19,31 @@ module.exports.notifyOwner = (event, context, callback) => {
     context.fail(errResponse.stack)
   }
 
-  console.log('EVENT:', event)
-
   // Selects only the records that are related to
   // modifications on the orden DB entries
   event.Records
-    .filter(({ eventName }) => eventName === 'MODIFY')
+    .filter(({ eventName }) => (eventName === 'INSERT' || eventName === 'MODIFY'))
     .map(({ dynamodb }) => {
-      const { message, event } = notification(dynamodb)
+      const { message, type } = notification(dynamodb)
 
-      message && console.log('Notication message:', message)
+      message &&
+        notifyToOwner({ message, type })
+          .then(({ data }) => {
+            data.success === 1
+              ? console.log('Notication message sent:', message)
+              : handleErr(data)
 
-      context.done()
+            context.done()
+          })
     })
 }
 
 // Produces the notification message from the update
 // done in the order
 const notification = ({ OldImage, NewImage }) => {
-  const { client } = OldImage
-  let message = null
+  const { client } = NewImage
+  let message = type = null
+  let delivered = received = false
 
   // Since the results of the records received on
   // stream output comes directly from dynamodb
@@ -44,14 +51,44 @@ const notification = ({ OldImage, NewImage }) => {
   // objects like those managed with dynamoose,
   // then their values have to be referenced in
   // dynamodb notation
-  const delivered = OldImage.delivered.S !== NewImage.delivered.S
-  const received = OldImage.received.S !== NewImage.received.S
+
+  if (!OldImage) {
+    message = `New order from ${client.S}`
+    type = 'newOrder'
+  } else {
+    delivered = NewImage.delivered.S !== OldImage.delivered.S
+    received = NewImage.received.S !== OldImage.received.S
+  }
 
   if (delivered) {
     message = `Order from ${client.S} was delivered`
+    type = 'delivered'
   } else if (received) {
     message = `${client.S} confirmed the order as received`
+    type = 'received'
   }
 
-  return message
+  return { message, type }
 }
+
+// Sends a push notfication to the Sushi owner through FCM
+const notifyToOwner = ({ type, message }) =>
+  Token.get({ subscriber: 'sushi-owner' })
+    .then(({ token }) =>
+      fetch('https://fcm.googleapis.com/fcm/send', {
+        method: 'post',
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache',
+          'Authorization': 'key=' + process.env.FCM_SERVER_KEY
+        },
+        data: {
+          notification: {
+            title: type === 'delivered' ? 'Order Delivered' : 'Order Received!',
+            body: { type, message }
+          },
+          to: token
+        }
+      })
+    )
+    .catch(err => err)

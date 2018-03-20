@@ -10,4 +10,4 @@ const subTokenSchema = new Schema({
   token: String
 })
 
-module.exports.Token = dynamoose.model(process.env.ORDER_TABLE, subTokenSchema)
+module.exports.Token = dynamoose.model(process.env.TOKEN_TABLE, subTokenSchema)

@@ -37,6 +37,7 @@ provider:
 
 functions:
   addOrder:
+    description: Adds a new order
     handler: handlers/add.addOrder
     events:
       - http:
@@ -45,6 +46,7 @@ functions:
           cors: true
 
   setAsDelivered:
+    description: Updates an order as delivered
     handler: handlers/delivered.setAsDelivered
     events:
       - http:
@@ -53,6 +55,7 @@ functions:
           cors: true
 
   setAsReceived:
+    description: Updates an order as received
     handler: handlers/received.setAsReceived
     events:
       - http:
@@ -60,21 +63,10 @@ functions:
           method: get
           cors: true
 
-  # rateService:
-  #   handler: handlers/rate.rateService
-  #   events:
-  #     - http:
-  #         path: client/order/{id}/rating
-  #         method: put
-  #         cors: true
-
   notifyOwner:
+    description: Notifies the Sushi owner through Firebase Cloud Messaging whenever he gets a new order, or when that order is received or delivered
     handler: handlers/notify.notifyOwner
     events:
-      - http:
-          path: backoffice/notifications
-          method: get
-          cors: true
       - stream:
           type: dynamodb
           arn:
@@ -84,6 +76,7 @@ functions:
           batchSize: 1
 
   addToken:
+    description: Saves the Sushi owner app token for receiving notifications that later the service notifyOwner uses for pushing new messages
     handler: handlers/token.addToken
     events:
       - http:
