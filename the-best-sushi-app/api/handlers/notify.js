@@ -20,7 +20,7 @@ module.exports.notifyOwner = (event, context, callback) => {
   }
 
   // Selects only the records that are related to
-  // modifications on the orden DB entries
+  // modifications and new entries on the orden DB entries
   event.Records
     .filter(({ eventName }) => (eventName === 'INSERT' || eventName === 'MODIFY'))
     .map(({ dynamodb }) => {

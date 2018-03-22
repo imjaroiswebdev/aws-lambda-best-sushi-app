@@ -63,26 +63,26 @@ functions:
           method: get
           cors: true
 
-  # notifyOwner:
-  #   description: Notifies the Sushi owner through Firebase Cloud Messaging whenever he gets a new order, or when that order is received or delivered
-  #   handler: handlers/notify.notifyOwner
-  #   events:
-  #     - stream:
-  #         type: dynamodb
-  #         arn:
-  #           Fn::GetAtt:
-  #             - orderTable
-  #             - StreamArn
-  #         batchSize: 1
+  notifyOwner:
+    description: Notifies the Sushi owner through Firebase Cloud Messaging whenever he gets a new order, or when that order is received or delivered
+    handler: handlers/notify.notifyOwner
+    events:
+      - stream:
+          type: dynamodb
+          arn:
+            Fn::GetAtt:
+              - orderTable
+              - StreamArn
+          batchSize: 1
 
-  # addToken:
-  #   description: Saves the Sushi owner app token for receiving notifications that later the service notifyOwner uses for pushing new messages
-  #   handler: handlers/token.addToken
-  #   events:
-  #     - http:
-  #         path: subscriber/{token}
-  #         method: get
-  #         cors: true
+  addToken:
+    description: Saves the Sushi owner app token for receiving notifications that later the service notifyOwner uses for pushing new messages
+    handler: handlers/token.addToken
+    events:
+      - http:
+          path: subscriber/{token}
+          method: get
+          cors: true
 
 resources:
   Resources:
