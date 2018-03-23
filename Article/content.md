@@ -1,4 +1,8 @@
-﻿# Monitoring and Debugging a Serveless AWS Lambda Backed Sushi Delivery App without knowing about AWS
+﻿# Monitoring and Debugging an AWS Lambda Backed Sushi Delivery App without knowing about AWS
+
+<br>
+
+![Monitor and debug AWS Lambda Apps without knowing of AWS](./assets/lambda-backed-app-without-knowing-aws.jpg)
 
 The serverless technology is becoming something as exciting and challenging as it might was deploying our first app to the internet and see it come to life, work and also crash. Maybe the latter more than we wanted at the begging, but later when we overcame that challenge we felt like we could with everything until we acknowledged the real world production app and their architecture.
 
@@ -38,7 +42,7 @@ The answer is self explanatory (just kidding), well with the [__Serverless Frame
 
 #### The Best Sushi App (Our app)
 
-![The Best Sushi App first screen](./assets/app-capture-1.png)
+![The Best Sushi App working](./assets/app-working.gif)
 
 The complete app source code is available in this [repository]() and is branched in the same way that will be explain it here...
 
@@ -50,7 +54,7 @@ The complete app source code is available in this [repository]() and is branched
 So for best follow up of the app building process, proceed to download the project from the repository with...
 
 ```bash
-  $ git clone git@github.com:user/best-sushi-app.git
+  $ git clone git@github.com:imjaroiswebdev/aws-lambda-best-sushi-app.git
   $ # Then cd in our app folder
   $ cd best-sushi-app/api
   $ # Install the dependencies
@@ -757,3 +761,6 @@ See this, because we are only using the default configuration provided by Server
 
 That is just one of many analysis that we can achieve with the use of Dashbird without opening our AWS Console.
 
+## Conclusion
+
+Well, that was a bit long for at least some of you but the main point was to show the basic of Serverless apps and how to implemented a basic event driven functionality to your services, but also the impotance of knowing how to monitore your running in production app without the out of confidence of not knowing about AWS products for this task, but for completely solving this, we got Dashbird backing us up for continue in our development trip of Serverless production apps with confidence.
